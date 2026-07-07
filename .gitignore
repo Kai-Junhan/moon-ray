@@ -6,4 +6,5 @@ target
 .moonagent/
 .repos/
 *.ppm
-output_*.ppm
+*.bmp
+output_*.*

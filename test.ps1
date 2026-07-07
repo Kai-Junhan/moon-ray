@@ -1,26 +1,18 @@
-# test.ps1 - Run a quick test render and save to test_output.ppm
+# test.ps1 - Run a quick test render, convert to BMP, and clean up PPM
 # Usage: powershell -File test.ps1
 
 $env:Path = "$env:USERPROFILE\.moon\bin;$env:Path"
-$output = "test_output.ppm"
 
 Write-Host "Building moon-ray..."
-moon check --quiet 2>$null
+moon check 2>$null
+if ($LASTEXITCODE -ne 0) { Write-Host "Build failed!"; exit 1 }
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Build failed!"
-    exit 1
-}
+Write-Host "Rendering (400x225, 100 samples)..."
+moon run cmd/main > test_output.ppm 2>$null
+if ($LASTEXITCODE -ne 0) { Write-Host "Render failed!"; exit 1 }
 
-Write-Host "Rendering test scene (200x112, 50 samples)..."
-moon run cmd/main > $output
+Write-Host "Converting to BMP..."
+powershell -File ppm2bmp.ps1
 
-if ($LASTEXITCODE -eq 0) {
-    $size = (Get-Item $output).Length
-    Write-Host "Done! Output: $output ($size bytes)"
-    Write-Host "Open with any image viewer that supports PPM (e.g. IrfanView, GIMP)"
-    Write-Host "Or convert: ffmpeg -i $output test_output.png"
-    Write-Host "Run 'powershell -File clean.ps1' to delete test files"
-} else {
-    Write-Host "Render failed!"
-}
+Write-Host "Done! Open test_output.bmp to view."
+Write-Host "Run 'powershell -File clean.ps1' to delete test files."
