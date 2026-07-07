@@ -105,7 +105,7 @@ moon-ray/
 ├── camera.mbt               # 相机模型 + 景深
 ├── renderer.mbt             # 路径追踪渲染器
 ├── demo_scenes.mbt          # 4 个预设场景
-├── output_ppm.mbt           # PPM P3 格式输出
+├── ppm_output.mbt           # PPM P3 格式输出
 ├── cmd/main/main.mbt        # CLI 入口
 ├── *.ps1                    # PowerShell 辅助脚本
 ├── *_test.mbt               # 单元测试

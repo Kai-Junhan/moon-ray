@@ -1,5 +1,4 @@
 import {
-  "moonbitlang/core/math" @math,
   "Kai-Junhan/moon-ray" @lib,
 }
 
