@@ -1,0 +1,8 @@
+import {
+  "moonbitlang/core/math" @math,
+  "kaijunhan-nuist/moon-ray" @lib,
+}
+
+options(
+  "is-main": true,
+)

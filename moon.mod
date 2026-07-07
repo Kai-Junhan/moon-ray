@@ -1,0 +1,6 @@
+name = "kaijunhan-nuist/moon-ray"
+version = "0.1.0"
+repository = "https://github.com/kaijunhan-nuist/moon-ray"
+license = "Apache-2.0"
+keywords = ["ray-tracing", "path-tracing", "graphics", "rendering", "PBR"]
+description = "A Monte Carlo path tracing renderer in pure MoonBit — OSC 2026"
