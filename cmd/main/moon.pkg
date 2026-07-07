@@ -1,6 +1,6 @@
 import {
   "moonbitlang/core/math" @math,
-  "kaijunhan-nuist/moon-ray" @lib,
+  "Kai-Junhan/moon-ray" @lib,
 }
 
 options(
