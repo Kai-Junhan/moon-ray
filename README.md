@@ -50,12 +50,17 @@ moon-ray/
 
 ## 测试渲染
 
-```bash
-# 运行测试脚本，生成 test_output.ppm 到当前目录
+```powershell
+# 确保在项目根目录下运行
+cd moon-ray
+
+# 运行测试脚本，生成 test_output.ppm
 powershell -File test.ps1
 
-# 用图片查看器打开 test_output.ppm 验证渲染结果
-# 完成后删除测试文件:
+# 查看渲染结果（PPM 格式，可用 IrfanView / GIMP / ffmpeg 打开）
+# start test_output.ppm
+
+# 完成后删除测试文件
 powershell -File clean.ps1
 ```
 
