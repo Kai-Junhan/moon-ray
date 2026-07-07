@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Check MoonBit version
+        run: |
+          moon version --all
+
+      - name: Update dependencies
+        run: |
+          moon update
+
+      - name: Check code
+        run: |
+          moon check
+
+      - name: Run tests
+        run: |
+          moon test
+
+      - name: Build project
+        run: |
+          moon build
+
+      - name: Test rendering (generate sample)
+        run: |
+          moon run cmd/main > test_output.ppm
+          # Verify PPM header is correct
+          head -1 test_output.ppm | grep -q "P3"
+          echo "Rendering test passed!"
+
+      - name: Upload render artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-sample
+          path: test_output.ppm

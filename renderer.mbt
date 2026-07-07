@@ -45,15 +45,15 @@ pub fn render_scene(
   let pixels = Array::new(capacity=size)
 
   for j in 0..<height {
-    for _i in 0..<width {
+    for i in 0..<width {
       let mut color = { x: 0.0, y: 0.0, z: 0.0 }
       let mut rng = default_rng()
       for _ in 0..<samples_per_pixel {
         let (u, r1) = rng.random_double()
         let (v, r2) = r1.random_double()
         rng = r2
-        let s = (_i.to_double() + u) / width.to_double()
-        let t = (j.to_double() + v) / height.to_double()
+        let s = (i.to_double() + u) / width.to_double()
+        let t = ((height - 1 - j).to_double() + v) / height.to_double()
         let ray = cam.get_ray(s, t)
         color = color + ray_color(ray, world, max_depth, rng)
       }
