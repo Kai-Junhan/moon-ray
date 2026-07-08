@@ -3,6 +3,13 @@
 
 pub(all) enum Hitable {
   Sphere(Sphere)
+  Plane(Plane)
+  Triangle(Triangle)
+  BoxShape(BoxShape)
+  Cylinder(Cylinder)
+  Disk(Disk)
+  Cone(Cone)
+  Torus(Torus)
 } derive(Debug)
 
 pub(all) struct HitRecord {
@@ -48,6 +55,13 @@ pub fn Hitable::hit(self : Hitable, r : Ray, t_min~ : Double, t_max~ : Double) -
       rec = rec.set_face_normal(r, outward_normal)
       Some(rec)
     }
+    Plane(pl) => pl.hit_plane(r, t_min=t_min, t_max=t_max)
+    Triangle(tri) => tri.hit_triangle(r, t_min=t_min, t_max=t_max)
+    BoxShape(bx) => bx.hit_box(r, t_min=t_min, t_max=t_max)
+    Cylinder(cyl) => cyl.hit_cylinder(r, t_min=t_min, t_max=t_max)
+    Disk(dk) => dk.hit_disk(r, t_min=t_min, t_max=t_max)
+    Cone(cn) => cn.hit_cone(r, t_min=t_min, t_max=t_max)
+    Torus(tor) => tor.hit_torus(r, t_min=t_min, t_max=t_max)
   }
 }
 
