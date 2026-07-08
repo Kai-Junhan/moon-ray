@@ -7,4 +7,9 @@ target
 .repos/
 *.ppm
 *.bmp
-output_*.*
+output_*.ppm
+output_*.bmp
+test_output_*.*
+gui/__pycache__/
+*.pyc
+__pycache__/
