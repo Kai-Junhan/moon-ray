@@ -1,5 +1,5 @@
 name = "Kai-Junhan/moon-ray"
-version = "0.2.2"
+version = "0.2.3"
 readme = "README.md"
 repository = "https://github.com/Kai-Junhan/moon-ray"
 license = "Apache-2.0"
