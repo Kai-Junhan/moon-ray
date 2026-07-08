@@ -4,223 +4,288 @@
 
 **Pure MoonBit Monte Carlo Path Tracer**
 
+[![CI](https://github.com/Kai-Junhan/moon-ray/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai-Junhan/moon-ray/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![MoonBit](https://img.shields.io/badge/Language-MoonBit-6f42c1)](https://www.moonbitlang.cn/)
+[![mooncakes.io](https://img.shields.io/badge/mooncakes.io-v0.2.1-00b894)](https://mooncakes.io)
+
+*2026 MoonBit Open Source Ecosystem Competition*
+
 ─────────────────────
 
-A physically-based rendering engine written entirely in [MoonBit](https://www.moonbitlang.cn/),
-featuring 8 geometry types, 7 materials, BVH acceleration, procedural textures,
+A physically-based rendering engine written entirely in [MoonBit](https://www.moonbitlang.cn/).
+8 geometry types, 7 PBR materials, BVH acceleration, procedural textures,
 volume rendering, post-processing, and an interactive web GUI.
-
-*2026 MoonBit Open Source Ecosystem Competition Entry*
 
 ─────────────────────
 
 </div>
 
-## Features
+<details>
+<summary><b>中文介绍</b></summary>
 
-### Core Rendering
+moon-ray 是一个纯 [MoonBit](https://www.moonbitlang.cn/) 实现的蒙特卡洛路径追踪渲染器，
+是 **2026 MoonBit 国产基础软件开源大赛** 参赛项目。
+
+基于物理渲染（PBR）理论，从零实现了完整的 Monte Carlo 光线追踪管线。
+支持 8 种几何体类型、7 种物理材质、BVH 加速结构、程序化纹理生成、
+体积渲染（雾/烟）、后处理特效链以及交互式 Web 图形界面。
+
+内置 13 个演示场景，覆盖经典三球、Cornell Box、材质对比、景深虚化、
+大气雾效等效果。项目搭载完整 CI/CD 流水线，32 个单元测试全部通过，
+已发布至 [mooncakes.io](https://mooncakes.io) 生态。
+
+</details>
+
+---
+
+## Features / 功能特性
+
+### Rendering / 渲染管线
 - **Monte Carlo Path Tracing** — Full global illumination with recursive ray bounces
-- **Next Event Estimation** — Direct light sampling with Multiple Importance Sampling (MIS)
-- **Russian Roulette Termination** — Unbiased path termination for efficiency
-- **Gamma & sRGB Correction** — Proper color output for modern displays
+- **Russian Roulette Termination** — Unbiased early termination for performance
+- **Next Event Estimation** — Direct light importance sampling with MIS
+- **Gamma & sRGB Correction** — Physically accurate color output
 
-### Geometry (8 Types)
-| Type | File | Description |
-|------|------|-------------|
-| Sphere | `geometry_sphere.mbt` | Ray-sphere intersection |
-| Plane | `geometry_plane.mbt` | Infinite plane with normal |
-| Triangle | `geometry_triangle.mbt` | Möller–Trumbore intersection |
-| Box | `geometry_box.mbt` | Axis-aligned cuboid |
-| Cylinder | `geometry_cylinder.mbt` | Y-axis aligned cylinder |
-| Disk | `geometry_disk.mbt` | Flat circular disk |
-| Cone | `geometry_cone.mbt` | Tapered cone with base |
-| Torus | `geometry_torus.mbt` | Donut shape via Newton's method |
-| Mesh | `geometry_mesh.mbt` | Triangle mesh with UV sphere & cube builders |
+<details><summary>中文</summary>
 
-### Materials (7 Types)
-| Material | Description |
-|----------|-------------|
-| Lambertian | Ideal diffuse (matte) surfaces |
-| Metal | Specular reflection with configurable fuzz |
-| Dielectric | Glass/water with Schlick Fresnel |
-| Emissive | Light source (HDR values supported) |
-| DiffuseLight | Textured area light |
-| Isotropic | Volume-like scattering |
-| Textured | Dull surface with texture mapping |
+- **蒙特卡洛路径追踪** — 递归光线弹射，模拟完整全局光照
+- **俄罗斯轮盘赌终止** — 无偏的早期路径终止，提升渲染效率
+- **次事件估计 (NEE)** — 对光源直接采样，配合多重重要性采样 (MIS)
+- **Gamma/sRGB 校正** — 物理准确的色彩输出
 
-### Acceleration
-- **BVH (Bounding Volume Hierarchy)** — Recursive spatial partitioning for scene intersection
+</details>
 
-### Textures
-- Solid color, checkerboard, procedural noise, and image textures
+### Geometry / 几何体 (8 Types)
 
-### Camera
-- Configurable position, look-at, FOV, aperture (depth of field), and motion blur
-- Animation-ready keyframe paths with Catmull-Rom interpolation and easing functions
+| Type / 类型 | File / 文件 | Description / 描述 |
+|-------------|-------------|-------------------|
+| Sphere / 球体 | `geometry_sphere.mbt` | Ray-sphere intersection |
+| Plane / 平面 | `geometry_plane.mbt` | Infinite plane |
+| Triangle / 三角形 | `geometry_triangle.mbt` | Möller–Trumbore algorithm |
+| Box / 盒子 | `geometry_box.mbt` | Axis-aligned cuboid |
+| Cylinder / 圆柱 | `geometry_cylinder.mbt` | Y-axis aligned |
+| Disk / 圆盘 | `geometry_disk.mbt` | Flat circular disk |
+| Cone / 圆锥 | `geometry_cone.mbt` | Tapered cone with base cap |
+| Torus / 圆环 | `geometry_torus.mbt` | Newton's method solver |
+| Mesh / 网格 | `geometry_mesh.mbt` | Triangle mesh with builders |
 
-### Post-Processing
-- Reinhard & ACES tone mapping
-- Bloom, vignette, film grain, and edge-aware denoising
+### Materials / 材质 (7 Types)
 
-### Output Formats
-- PPM (ASCII text, pipe to stdout)
-- BMP (24-bit uncompressed binary)
+| Material / 材质 | Description / 描述 |
+|-----------------|-------------------|
+| Lambertian | Ideal diffuse (matte) surfaces / 理想漫反射 |
+| Metal | Specular reflection with fuzz / 金属反射（可调粗糙度） |
+| Dielectric | Glass/water with Schlick Fresnel / 电介质（玻璃/水/钻石） |
+| Emissive | Light source (HDR) / 自发光光源 |
+| DiffuseLight | Textured area light / 纹理区域光 |
+| Isotropic | Volume-like scattering / 各向同性散射 |
+| Textured | Dull surface with texture mapping / 纹理映射哑光表面 |
 
-### Environment
+### Acceleration / 加速结构
+- **BVH (Bounding Volume Hierarchy)** — Recursive spatial partitioning
+
+### Textures / 纹理
+- **Solid** — Uniform color
+- **Checker** — Procedural checkerboard with configurable scale
+- **Noise** — Hash-based procedural noise
+- **Image** — Bitmap texture sampling
+
+### Camera / 相机
+- Configurable look-from, look-at, FOV, aperture (depth of field), motion blur
+- Keyframe animation paths with Catmull-Rom interpolation and easing functions
+
+### Post-Processing / 后处理
+- **Tone Mapping** — Reinhard, ACES filmic, gamma correction
+- **Bloom** — Gaussian blur on highlights
+- **Vignette** — Edge darkening
+- **Film Grain** — Procedural noise overlay
+- **Denoising** — Edge-aware bilateral filter (stub)
+
+### Output / 输出格式
+- **PPM** — ASCII text (pipe to stdout)
+- **BMP** — 24-bit uncompressed binary
+
+### Environment / 环境光
 - Gradient sky, Hosek-Wilkie sky model, black-body radiation, sun direction
 
-### Volume Rendering
-- Ray marching through constant-density volumes (fog, smoke)
+### Volume / 体积渲染
+- Ray marching through constant-density volumes
 - Exponential fog, layered fog, Beer-Lambert absorption
 
-## Quick Start
+---
+
+## Quick Start / 快速开始
 
 ### Prerequisites
+
 Install the MoonBit toolchain: https://www.moonbitlang.cn/download/
 
-### Build & Test
+### Build & Test / 构建与测试
+
 ```bash
 git clone git@github.com:Kai-Junhan/moon-ray.git
 cd moon-ray
 
-moon check          # Syntax check — 0 errors
-moon test           # Unit tests — 32/32 pass
-moon build          # Compile
+moon check          # Syntax check — 0 errors / 语法检查
+moon test           # Unit tests — 32/32 pass / 单元测试
+moon build          # Compile / 编译
 ```
 
-### Render a Scene
+### Render / 渲染
+
 ```bash
-# Default: Three Spheres (400x225, 100 spp)
+# Default scene: Three Spheres (400×225, 100 spp)
+# 默认场景：三球 (400×225, 100 spp)
 moon run cmd/main > output.ppm
 
-# Or use the test script
+# Run full test suite / 运行完整测试套件
 powershell -File test.ps1
 ```
 
-### Launch Web GUI
+### Web GUI / 图形界面
+
 ```bash
 python gui/server.py
 # Open http://localhost:8088
+
+# Or use the PowerShell launcher / 或使用 PowerShell 启动
+powershell -File gui.ps1
 ```
-The GUI provides scene selection, parameter sliders, preset quality levels, and live PPM preview in your browser.
 
-## Demo Scenes (13 Total)
+The GUI features: scene selector, parameter sliders, quick presets, live PPM preview.
 
-| Scene | Key | Description |
-|-------|-----|-------------|
-| `three_spheres` | Classic | Diffuse + Metal + Glass |
-| `cornell_box` | GI Test | Spherical light box |
-| `material_showcase` | Materials | 4 Lamberts + 4 Metals + 3 Dielectrics |
-| `random_spheres` | Stress | 121 random objects |
-| `geometric` | Multi-Geo | Boxes, cylinders, disks with checker floor |
-| `cornell_box_planes` | Planar | Plane-based Cornell box |
-| `texture_demo` | Textures | Checker & noise-mapped spheres |
-| `triangle_demo` | Triangles | Colored triangle banners |
-| `final_demo` | Showcase | 121 mixed shapes with DOF |
-| `full_geometry` | All Types | Every geometry type on display |
-| `studio_lighting` | Lighting | Three-point studio light setup |
-| `depth_of_field` | DOF | Aperture blur on metal spheres |
-| `foggy_scene` | Volume | Atmospheric fog effect |
+<details><summary>中文</summary>
 
-## Project Structure
+图形界面功能：场景选择器、参数滑动条、快速预设级别（低/中/高/超高）、实时 PPM 预览。
+
+</details>
+
+---
+
+## Demo Scenes / 演示场景 (13 Total)
+
+| # | Scene / 场景 | Key | Description / 描述 |
+|---|-------------|-----|-------------------|
+| 1 | `three_spheres` | Classic / 经典 | Diffuse + Metal + Glass |
+| 2 | `cornell_box` | GI Test / 全局光 | Spherical light box |
+| 3 | `material_showcase` | Materials / 材质 | 4 Lamberts + 4 Metals + 3 Dielectrics |
+| 4 | `random_spheres` | Stress / 压力 | 121 random objects |
+| 5 | `geometric` | Multi-Geo / 多几何体 | Boxes, cylinders, disks, checker floor |
+| 6 | `cornell_box_planes` | Planar / 平面 | Plane-based Cornell box |
+| 7 | `texture_demo` | Textures / 纹理 | Checker & noise spheres |
+| 8 | `triangle_demo` | Triangles / 三角 | Colored triangle banners |
+| 9 | `final_demo` | Showcase / 展示 | 121 mixed shapes + DOF |
+| 10 | `full_geometry` | All Types / 全类型 | Every geometry type on display |
+| 11 | `studio_lighting` | Lighting / 布光 | Three-point studio light setup |
+| 12 | `depth_of_field` | DOF / 景深 | Aperture blur on metal spheres |
+| 13 | `foggy_scene` | Volume / 大气 | Atmospheric fog effect |
+
+---
+
+## Project Structure / 项目结构
 
 ```
 moon-ray/
 ├── .github/workflows/ci.yml     # GitHub Actions CI
 ├── .githooks/pre-commit         # Git pre-commit hook
 ├── gui/                         # Web GUI (HTML/CSS/JS + Python server)
-├── cmd/main/                    # CLI entry point
+├── cmd/main/                    # CLI entry point / CLI 入口
 │
-├── math_vec3.mbt                # Vec3 + operator overloading
-├── math_ray.mbt                 # Ray representation
-├── math_random.mbt              # xorshift128+ PRNG + sampling
-├── math_aabb.mbt                # Axis-Aligned Bounding Box
-├── math_onb.mbt                 # Orthonormal Basis for sampling
-├── math_perlin.mbt              # Perlin noise generator
-├── texture_base.mbt             # Texture enum (Solid/Checker/Noise/Image)
+├── math_*.mbt                   # Math: Vec3, Ray, RNG, AABB, ONB, Perlin
+├── geometry_*.mbt               # Geometry: Sphere, Plane, Triangle, Box,
+│                                #   Cylinder, Disk, Cone, Torus, Mesh, Hit
+├── texture_base.mbt             # Texture enum / 纹理枚举
+├── material.mbt                 # Material enum (7 types) / 材质枚举
+├── camera.mbt                   # Camera model + defocus blur / 相机+景深
+├── renderer.mbt                 # Path tracing core / 路径追踪核心
+├── render_sampling.mbt          # Advanced sampling / 高级采样
+├── render_config.mbt            # Render parameter management / 渲染配置
 │
-├── geometry_sphere.mbt          # Sphere geometry
-├── geometry_plane.mbt           # Plane geometry
-├── geometry_triangle.mbt        # Triangle (Möller–Trumbore)
-├── geometry_box.mbt             # Axis-aligned box
-├── geometry_cylinder.mbt        # Cylinder
-├── geometry_disk.mbt            # Disk
-├── geometry_cone.mbt            # Cone
-├── geometry_torus.mbt           # Torus
-├── geometry_mesh.mbt            # Triangle mesh
-├── geometry_hit.mbt             # Hitable enum + HitableList
+├── bvh.mbt                      # BVH acceleration / BVH 加速
+├── animation.mbt                # Keyframe camera / 关键帧动画
+├── environment.mbt              # Sky & black-body / 天空模型
+├── tone_mapping.mbt             # Reinhard/ACES/gamma / 色调映射
+├── volume_render.mbt            # Fog & media / 体积渲染
+├── post_process.mbt             # Bloom/vignette/denoise / 后处理
+├── scene_loader.mbt             # Scene builder API / 场景构建
 │
-├── material.mbt                 # Material enum (7 types) + scattering
-├── camera.mbt                   # Camera model + defocus blur
-├── renderer.mbt                 # Path tracing core
-├── render_sampling.mbt          # Stratified/Sobol/MIS sampling
-├── render_config.mbt            # Render parameter management
+├── demo_scenes.mbt              # Preset scenes × 4 / 预设场景
+├── demo_extra.mbt               # Extended scenes × 5 / 扩展场景
+├── demo_extra2.mbt              # Extended scenes × 4 / 扩展场景
 │
-├── bvh.mbt                      # BVH acceleration structure
-├── animation.mbt                # Keyframe camera animation
-├── environment.mbt              # Sky models & black-body radiation
-├── tone_mapping.mbt             # Reinhard/ACES/gamma tone mapping
-├── volume_render.mbt            # Participating media & fog
-├── post_process.mbt             # Bloom/vignette/denoising
-├── scene_loader.mbt             # Scene builder API
+├── output_ppm.mbt               # PPM output / PPM 输出
+├── output_bmp.mbt               # BMP output / BMP 输出
 │
-├── demo_scenes.mbt              # Preset scenes (4)
-├── demo_extra.mbt               # Extended scenes (5)
-├── demo_extra2.mbt              # Extended scenes (4)
-│
-├── output_ppm.mbt               # PPM output format
-├── output_bmp.mbt               # BMP output format
-│
-├── *_test.mbt                   # Unit tests (5 files, 32 tests)
-├── moon.mod / moon.pkg          # Package configuration
-├── test.ps1 / gui.ps1           # Helper scripts
+├── *_test.mbt                   # Tests × 5 (32 cases) / 测试
+├── moon.mod / moon.pkg          # Package config / 包配置
+├── test.ps1 / gui.ps1           # Helper scripts / 辅助脚本
 ├── README.md
 └── LICENSE                      # Apache 2.0
 ```
 
-## Continuous Integration
+---
 
-On every push, GitHub Actions automatically runs:
-- `moon check` — Full syntax verification
-- `moon test` — All unit tests
-- `moon build` — Compilation check
-- Render test — Generates and validates PPM output
+## CI/CD / 持续集成
 
-## Testing
+On every push, GitHub Actions automatically runs / 每次推送自动执行：
+
+| Step | Status |
+|------|--------|
+| `moon check` | ✅ 0 errors / 零错误 |
+| `moon test` | ✅ 32/32 pass / 全部通过 |
+| `moon build` | ✅ Build successful / 编译成功 |
+| Render test | ✅ PPM validation / PPM 格式验证 |
+
+---
+
+## Testing / 测试
 
 ```bash
-moon test          # 32 tests, all passing
+moon test                    # 32 tests, all passing / 32 个测试全部通过
 ```
 
-Coverage includes:
-- **Vec3**: dot, cross, length, normalize, reflect, refract, lerp
-- **Ray**: at-point computation
-- **AABB**: hit/miss detection
-- **RNG**: deterministic random generation, unit vectors, hemisphere sampling
-- **Geometry**: sphere, plane, box, cylinder, disk, cone, torus, mesh hit tests
-- **Materials**: Lambertian scatter, emissive/EmissiveLight, diffuse light
-- **Textures**: solid, checker, noise color evaluation
-- **Tone mapping**: Reinhard, gamma correction
-- **Camera**: ray generation, custom positioning
-- **BMP**: header format, output size validation
-- **Scene**: object construction, config defaults
-- **Animation**: keyframe interpolation, camera paths
-- **Volume**: exponential fog, Beer-Lambert absorption
+Coverage includes: Vec3 operations, ray-point computation, AABB hit/miss,
+RNG determinism, all 8 geometry types, material emission/scattering,
+texture evaluation, tone mapping, camera rays, BMP output, scene construction,
+animation interpolation, and volume fog.
 
-## Packages
+<details><summary>中文</summary>
 
-Published on [mooncakes.io](https://mooncakes.io) — importable as:
+测试覆盖：Vec3 运算、光线求交、AABB 碰撞、随机数确定性、全部 8 种几何体、
+材质发射/散射、纹理采样、色调映射、相机光线、BMP 输出、场景构建、
+动画插值和体积雾效。
+
+</details>
+
+---
+
+## Packages / 包管理
+
+Published on [mooncakes.io](https://mooncakes.io) — importable as / 可在 mooncakes.io 获取：
+
 ```moonbit
 import "Kai-Junhan/moon-ray"
 ```
 
-## References
+---
 
-This project draws inspiration from:
-- [*Ray Tracing in One Weekend*](https://raytracing.github.io/books/RayTracingInOneWeekend.html) — Peter Shirley
-- [*Physically Based Rendering*](https://pbr-book.org/) — Pharr, Jakob, Humphreys
+## References / 参考资料
 
-## License
+- [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) — Peter Shirley
+- [_Physically Based Rendering_](https://pbr-book.org/) — Pharr, Jakob, Humphreys
+
+<details><summary>中文</summary>
+
+本项目参考了 Peter Shirley 的《Ray Tracing in One Weekend》系列教程
+以及《Physically Based Rendering》经典教材，在此基础上进行了 MoonBit 语言
+的原生重写和功能扩展。
+
+</details>
+
+---
+
+## License / 许可证
 
 Apache License 2.0 — See [LICENSE](LICENSE) for details.
 
@@ -230,6 +295,6 @@ Apache License 2.0 — See [LICENSE](LICENSE) for details.
 
 **Built with MoonBit for the 2026 Open Source Ecosystem Competition**
 
-★ Star on [GitHub](https://github.com/Kai-Junhan/moon-ray) — Available on [mooncakes.io](https://mooncakes.io)
+★ Star on [GitHub](https://github.com/Kai-Junhan/moon-ray) · [Gitlink](https://gitlink.org.cn/weedmind/moonbit) · [mooncakes.io](https://mooncakes.io)
 
 </div>
