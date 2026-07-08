@@ -40,6 +40,11 @@ pub fn render_with_config(config : RenderConfig) -> (Array[Vec3], Int, Int) {
     "studio_lighting" => studio_lighting_demo()
     "depth_of_field" => depth_of_field_demo()
     "foggy_scene" => foggy_scene_demo()
+    "mirror_corridor" => mirror_corridor_scene()
+    "crystal_garden" => crystal_garden_scene()
+    "sunrise_valley" => sunrise_valley_scene()
+    "prism_lab" => prism_lab_scene()
+    "city_at_night" => city_at_night_scene()
     _ => three_spheres_scene()
   }
 
@@ -55,7 +60,7 @@ pub fn render_with_config(config : RenderConfig) -> (Array[Vec3], Int, Int) {
 }
 
 pub fn list_scenes() -> Array[String] {
-  let scenes = Array::new(capacity=14)
+  let scenes = Array::new(capacity=20)
   let result = scenes
   result.push("three_spheres")
   result.push("cornell_box")
@@ -70,5 +75,10 @@ pub fn list_scenes() -> Array[String] {
   result.push("studio_lighting")
   result.push("depth_of_field")
   result.push("foggy_scene")
+  result.push("mirror_corridor")
+  result.push("crystal_garden")
+  result.push("sunrise_valley")
+  result.push("prism_lab")
+  result.push("city_at_night")
   result
 }

@@ -12,3 +12,23 @@ test "camera_ray" {
   let r = cam.get_ray(0.5, 0.5)
   assert_true(r.dir.z < -0.5)
 }
+test "demo_mirror_corridor" {
+  let (_world, _cam) = mirror_corridor_scene()
+  assert_true(true)
+}
+test "demo_crystal_garden" {
+  let (_world, _cam) = crystal_garden_scene()
+  assert_true(true)
+}
+test "demo_sunrise_valley" {
+  let (_world, _cam) = sunrise_valley_scene()
+  assert_true(true)
+}
+test "demo_prism_lab" {
+  let (_world, _cam) = prism_lab_scene()
+  assert_true(true)
+}
+test "demo_city_at_night" {
+  let (_world, _cam) = city_at_night_scene()
+  assert_true(true)
+}

@@ -19,6 +19,11 @@ fn main {
     "studio_lighting" => @lib.studio_lighting_demo()
     "depth_of_field" => @lib.depth_of_field_demo()
     "foggy_scene" => @lib.foggy_scene_demo()
+    "mirror_corridor" => @lib.mirror_corridor_scene()
+    "crystal_garden" => @lib.crystal_garden_scene()
+    "sunrise_valley" => @lib.sunrise_valley_scene()
+    "prism_lab" => @lib.prism_lab_scene()
+    "city_at_night" => @lib.city_at_night_scene()
     _ => @lib.three_spheres_scene()
   }
 

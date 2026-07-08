@@ -163,7 +163,7 @@ The GUI features: scene selector, parameter sliders, quick presets, live PPM pre
 
 ---
 
-## Demo Scenes / 演示场景 (13 Total)
+## Demo Scenes / 演示场景 (18 Total)
 
 | # | Scene / 场景 | Key | Description / 描述 |
 |---|-------------|-----|-------------------|
@@ -180,6 +180,11 @@ The GUI features: scene selector, parameter sliders, quick presets, live PPM pre
 | 11 | `studio_lighting` | Lighting / 布光 | Three-point studio light setup |
 | 12 | `depth_of_field` | DOF / 景深 | Aperture blur on metal spheres |
 | 13 | `foggy_scene` | Volume / 大气 | Atmospheric fog effect |
+| 14 | `mirror_corridor` | Mirror / 镜面 | Infinite reflection corridor |
+| 15 | `crystal_garden` | Crystal / 水晶 | Glass prisms with colored lights |
+| 16 | `sunrise_valley` | Landscape / 风景 | Stone monoliths at dawn |
+| 17 | `prism_lab` | IOR Lab / 折射 | 6 dielectric prisms (water→diamond) |
+| 18 | `city_at_night` | City / 城市 | Skyline with emissive windows |
 
 ---
 
@@ -213,6 +218,7 @@ moon-ray/
 ├── demo_scenes.mbt              # Preset scenes × 4 / 预设场景
 ├── demo_extra.mbt               # Extended scenes × 5 / 扩展场景
 ├── demo_extra2.mbt              # Extended scenes × 4 / 扩展场景
+├── demo_extra3.mbt              # Advanced scenes × 5 / 高级场景
 │
 ├── output_ppm.mbt               # PPM output / PPM 输出
 ├── output_bmp.mbt               # BMP output / BMP 输出
