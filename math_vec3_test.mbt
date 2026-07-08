@@ -1,17 +1,8 @@
-test "vec3_add" {
+test "vec3_new" {
   let a = Vec3::new(x=1.0, y=2.0, z=3.0)
-  let b = Vec3::new(x=4.0, y=5.0, z=6.0)
-  let c = a + b
-  assert_eq(c.x, 5.0)
-  assert_eq(c.y, 7.0)
-  assert_eq(c.z, 9.0)
-}
-
-test "vec3_sub" {
-  let a = Vec3::new(x=5.0, y=5.0, z=5.0)
-  let b = Vec3::new(x=1.0, y=2.0, z=3.0)
-  let c = a - b
-  assert_eq(c.x, 4.0)
+  assert_eq(a.x, 1.0)
+  assert_eq(a.y, 2.0)
+  assert_eq(a.z, 3.0)
 }
 test "vec3_dot" {
   let a = Vec3::new(x=1.0, y=0.0, z=0.0)

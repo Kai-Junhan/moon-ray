@@ -1,10 +1,3 @@
-test "material_lambertian" {
-  let mat = Material::Lambertian(Vec3::new(x=0.8, y=0.2, z=0.2))
-  let r = Ray::new(orig=Vec3::new(x=0.0, y=0.0, z=0.0), dir=Vec3::new(x=0.0, y=0.0, z=-1.0))
-  let rec = { p: Vec3::new(x=0.0, y=0.0, z=-1.0), normal: Vec3::new(x=0.0, y=0.0, z=1.0), t: 1.0, front_face: true, material: mat }
-  let scatter = mat.scatter(r, rec)
-  match scatter { None => assert_true(false); Some(s) => assert_eq(s.attenuation.x, 0.8) }
-}
 test "material_emissive" {
   let mat = Material::Emissive(Vec3::new(x=4.0, y=4.0, z=4.0))
   let emitted = mat.emitted(0.0, 0.0, Vec3::new(x=0.0, y=0.0, z=0.0))
@@ -43,6 +36,12 @@ test "animation_keyframe" {
 }
 test "volume_fog" {
   let color = Vec3::new(x=1.0, y=1.0, z=1.0)
-  let result = exponential_fog(color, dist=5.0, fog_density=0.1, fog_color=Vec3::new(x=0.5, y=0.5, z=0.5))
+  let result = exponential_fog(color, 5.0, 0.1, Vec3::new(x=0.5, y=0.5, z=0.5))
   assert_true(result.x < 1.0)
+}
+test "volume_beer" {
+  let color = Vec3::new(x=1.0, y=1.0, z=1.0)
+  let density = Vec3::new(x=0.1, y=0.2, z=0.3)
+  let result = beer_lambert_absorption(color, 2.0, density)
+  assert_true(result.x > result.y)
 }

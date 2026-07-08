@@ -14,19 +14,19 @@ pub fn Vec3::new(x~ : Double, y~ : Double, z~ : Double) -> Vec3 {
 ///|
 /// Arithmetic trait implementations
 
-impl Add for Vec3 with add(self : Vec3, other : Vec3) -> Vec3 {
+pub impl Add for Vec3 with add(self : Vec3, other : Vec3) -> Vec3 {
   { x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
 }
 
-impl Sub for Vec3 with sub(self : Vec3, other : Vec3) -> Vec3 {
+pub impl Sub for Vec3 with sub(self : Vec3, other : Vec3) -> Vec3 {
   { x: self.x - other.x, y: self.y - other.y, z: self.z - other.z }
 }
 
-impl Mul for Vec3 with mul(self : Vec3, other : Vec3) -> Vec3 {
+pub impl Mul for Vec3 with mul(self : Vec3, other : Vec3) -> Vec3 {
   { x: self.x * other.x, y: self.y * other.y, z: self.z * other.z }
 }
 
-impl Neg for Vec3 with neg(self : Vec3) -> Vec3 {
+pub impl Neg for Vec3 with neg(self : Vec3) -> Vec3 {
   { x: -self.x, y: -self.y, z: -self.z }
 }
 
