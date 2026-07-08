@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>moon-ray - Interactive Path Tracer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>moon-ray</h1>
+    <span class="subtitle">Monte Carlo Path Tracing Renderer</span>
+  </header>
+
+  <div id="main-container">
+    <aside id="sidebar">
+      <div class="control-group">
+        <label for="scene-select">Scene</label>
+        <select id="scene-select">
+          <option value="three_spheres">Three Spheres</option>
+          <option value="cornell_box">Cornell Box</option>
+          <option value="material_showcase">Material Showcase</option>
+          <option value="random_spheres">Random Spheres</option>
+          <option value="geometric" selected>Geometric (New!)</option>
+          <option value="cornell_box_planes">Cornell Box Planes</option>
+          <option value="texture_demo">Texture Demo</option>
+          <option value="triangle_demo">Triangle Demo</option>
+          <option value="final_demo">Final Showcase</option>
+          <option value="full_geometry">Full Geometry</option>
+          <option value="studio_lighting">Studio Lighting</option>
+          <option value="depth_of_field">Depth of Field</option>
+          <option value="foggy_scene">Foggy Scene</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="width-input">Width</label>
+        <input type="number" id="width-input" value="400" min="100" max="1920" step="20">
+      </div>
+
+      <div class="control-group">
+        <label for="height-input">Height</label>
+        <input type="number" id="height-input" value="225" min="100" max="1080" step="10">
+      </div>
+
+      <div class="control-group">
+        <label for="samples-input">Samples <span id="samples-val">100</span></label>
+        <input type="range" id="samples-input" value="100" min="10" max="1000" step="10">
+      </div>
+
+      <div class="control-group">
+        <label for="depth-input">Max Depth <span id="depth-val">50</span></label>
+        <input type="range" id="depth-input" value="50" min="1" max="100" step="1">
+      </div>
+
+      <div class="control-group">
+        <label for="format-select">Output Format</label>
+        <select id="format-select">
+          <option value="ppm">PPM (text)</option>
+        </select>
+      </div>
+
+      <button id="render-btn" class="btn-primary">Render</button>
+      <button id="stop-btn" class="btn-secondary" disabled>Stop</button>
+
+      <div id="status" class="status-idle">Ready</div>
+
+      <div class="quick-presets">
+        <h3>Quick Presets</h3>
+        <button class="preset-btn" data-w="200" data-h="113" data-s="50">Low</button>
+        <button class="preset-btn" data-w="400" data-h="225" data-s="100">Medium</button>
+        <button class="preset-btn" data-w="640" data-h="360" data-s="200">High</button>
+        <button class="preset-btn" data-w="800" data-h="450" data-s="500">Ultra</button>
+      </div>
+    </aside>
+
+    <main id="viewport">
+      <div id="canvas-container">
+        <canvas id="render-canvas"></canvas>
+        <div id="placeholder">
+          <svg viewBox="0 0 80 80" width="80" height="80">
+            <circle cx="15" cy="30" r="10" fill="#e74c3c"/>
+            <circle cx="45" cy="25" r="8" fill="#3498db"/>
+            <circle cx="65" cy="35" r="12" fill="#2ecc71"/>
+            <rect x="55" y="50" width="20" height="8" fill="#f39c12"/>
+          </svg>
+          <p>Select a scene and click <strong>Render</strong></p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="info-bar">
+    <span id="render-time"></span>
+    <span id="render-info"></span>
+    <span id="render-stats"></span>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
