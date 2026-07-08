@@ -7,6 +7,10 @@ pub(all) struct Vec3 {
   z : Double
 } derive(Debug)
 
+pub fn Vec3::new(x~ : Double, y~ : Double, z~ : Double) -> Vec3 {
+  { x, y, z }
+}
+
 ///|
 /// Arithmetic trait implementations
 
