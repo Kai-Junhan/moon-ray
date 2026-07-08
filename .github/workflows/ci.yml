@@ -20,34 +20,34 @@ jobs:
           echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: Check MoonBit version
-        run: |
-          moon version --all
+        run: moon version --all
 
       - name: Update dependencies
-        run: |
-          moon update
+        run: moon update
 
       - name: Check code
-        run: |
-          moon check
+        run: moon check
 
       - name: Run tests
-        run: |
-          moon test
+        run: moon test
 
       - name: Build project
-        run: |
-          moon build
+        run: moon build
 
-      - name: Test rendering (generate sample)
+      - name: Render test - Three Spheres
         run: |
-          moon run cmd/main > test_output.ppm
-          # Verify PPM header is correct
-          head -1 test_output.ppm | grep -q "P3"
-          echo "Rendering test passed!"
+          echo "Testing three_spheres scene..."
+          moon run cmd/main > test_three_spheres.ppm
+          head -1 test_three_spheres.ppm | grep -q "P3" && echo "OK" || exit 1
 
-      - name: Upload render artifact
+      - name: Render test - Geometric Scene
+        run: |
+          echo "Testing geometric scene..."
+          moon run cmd/main > test_geometric.ppm
+          head -1 test_geometric.ppm | grep -q "P3" && echo "OK" || exit 1
+
+      - name: Upload render artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: render-sample
-          path: test_output.ppm
+          name: render-samples
+          path: "test_*.ppm"
