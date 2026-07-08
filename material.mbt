@@ -5,7 +5,10 @@ pub(all) enum Material {
   Lambertian(Vec3)      // albedo color
   Metal(Vec3, Double)   // albedo, fuzz
   Dielectric(Double)    // index of refraction
-  Emissive(Vec3)         // emitted color
+  Emissive(Vec3)        // emitted color
+  DiffuseLight(Texture) // area light with texture
+  Isotropic(Vec3)       // isotropic volume scattering
+  Textured(Texture)     // textured dull material
 } derive(Debug)
 
 /// Result of a ray scattering off a material.
@@ -56,13 +59,29 @@ pub fn Material::scatter(self : Material, r_in : Ray, rec : HitRecord) -> Scatte
       Some({ attenuation, scattered })
     }
     Emissive(_color) => None
+    DiffuseLight(_tex) => None
+    Isotropic(albedo) => {
+      let scatter_dir = default_rng().random_unit_vector().0
+      let scattered = Ray::new(orig=rec.p, dir=scatter_dir)
+      Some({ attenuation: albedo, scattered })
+    }
+    Textured(tex) => {
+      let albedo = tex.value(0.0, 0.0, rec.p)
+      let mut scatter_dir = rec.normal + default_rng().random_unit_vector().0
+      if scatter_dir.near_zero() {
+        scatter_dir = rec.normal
+      }
+      let scattered = Ray::new(orig=rec.p, dir=scatter_dir)
+      Some({ attenuation: albedo, scattered })
+    }
   }
 }
 
 /// Get emitted light from a material.
-pub fn Material::emitted(self : Material, _u : Double, _v : Double, _p : Vec3) -> Vec3 {
+pub fn Material::emitted(self : Material, u : Double, v : Double, p : Vec3) -> Vec3 {
   match self {
     Emissive(color) => color
+    DiffuseLight(tex) => tex.value(u, v, p)
     _ => { x: 0.0, y: 0.0, z: 0.0 }
   }
 }

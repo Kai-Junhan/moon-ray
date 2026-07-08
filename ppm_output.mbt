@@ -20,9 +20,9 @@ pub fn write_ppm_stdout(
     for i in 0..<width {
       let idx = j * width + i
       let pixel = pixels[idx]
-      let r = clamp((pixel.x * scale).sqrt(), min=0.0, max=0.999)
-      let g = clamp((pixel.y * scale).sqrt(), min=0.0, max=0.999)
-      let b = clamp((pixel.z * scale).sqrt(), min=0.0, max=0.999)
+      let r = (pixel.x * scale).sqrt().clamp(min=0.0, max=0.999)
+      let g = (pixel.y * scale).sqrt().clamp(min=0.0, max=0.999)
+      let b = (pixel.z * scale).sqrt().clamp(min=0.0, max=0.999)
 
       let ir = (256.0 * r).to_int()
       let ig = (256.0 * g).to_int()
@@ -30,16 +30,5 @@ pub fn write_ppm_stdout(
 
       println("\{ir} \{ig} \{ib}")
     }
-  }
-}
-
-/// Clamp value to [min, max].
-fn clamp(x : Double, min~ : Double, max~ : Double) -> Double {
-  if x < min {
-    min
-  } else if x > max {
-    max
-  } else {
-    x
   }
 }
