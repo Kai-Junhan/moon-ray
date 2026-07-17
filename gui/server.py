@@ -1,16 +1,18 @@
-"""moon-ray GUI Server - bridges the MoonBit renderer with a web GUI."""
+"""moon-ray GUI Server — renders scenes and serves PPM to the browser."""
 import http.server
 import subprocess
 import json
 import os
-import sys
-import tempfile
 import shutil
-from urllib.parse import urlparse, parse_qs
+import tempfile
+import threading
+from urllib.parse import urlparse
 
 PORT = 8088
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 MOON_RAY_DIR = os.path.dirname(PROJECT_DIR)
+MAIN_PATH = os.path.join(MOON_RAY_DIR, "cmd", "main", "main.mbt")
+MAIN_BAK = MAIN_PATH + ".bak"
 
 ALL_SCENES = [
     "three_spheres", "cornell_box", "material_showcase", "random_spheres",
@@ -20,12 +22,13 @@ ALL_SCENES = [
     "prism_lab", "city_at_night",
 ]
 
+_render_lock = threading.Lock()
+
 
 class RenderHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
-
         if path in ("/", "/index.html"):
             self.serve_file("index.html", "text/html")
         elif path == "/style.css":
@@ -35,25 +38,17 @@ class RenderHandler(http.server.BaseHTTPRequestHandler):
         elif path == "/api/scenes":
             self.serve_json({"scenes": ALL_SCENES})
         elif path == "/api/render":
-            self.handle_render_get(parsed)
+            self.send_error(405)
         else:
             self.send_error(404)
 
     def do_POST(self):
         if self.path == "/api/render":
-            self.handle_render_post()
+            self.handle_render()
         else:
             self.send_error(404)
 
-    def handle_render_get(self, parsed):
-        params = parse_qs(parsed.query)
-        scene = params.get("scene", ["three_spheres"])[0]
-        width = int(params.get("width", ["400"])[0])
-        height = int(params.get("height", ["225"])[0])
-        samples = int(params.get("samples", ["100"])[0])
-        self.run_render(scene, width, height, samples, 50)
-
-    def handle_render_post(self):
+    def handle_render(self):
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length)
         try:
@@ -65,86 +60,60 @@ class RenderHandler(http.server.BaseHTTPRequestHandler):
         height = int(data.get("height", 225))
         samples = int(data.get("samples", 100))
         max_depth = int(data.get("max_depth", 50))
-        self.run_render(scene, width, height, samples, max_depth)
 
-    def run_render(self, scene, width, height, samples, max_depth):
-        scene_func = f"{scene}_scene"
-        self.log_message("Rendering: %s, %dx%d, %d spp", scene, width, height, samples)
+        if scene not in ALL_SCENES:
+            scene = "three_spheres"
 
-        # Build a complete self-contained moonbit file in a temp dir
-        tmp_dir = tempfile.mkdtemp(prefix="moonray_gui_")
+        self.log_message("Render: scene=%s %dx%d %dspp", scene, width, height, samples)
+        self.try_render(scene, width, height, samples, max_depth)
 
-        src = f"""
-fn main {{
+    def try_render(self, scene, width, height, samples, max_depth):
+        fog_density = 0.08 if scene == "foggy_scene" else 0.0
+        scene_func = scene + "_scene"
+        gen = f"""fn main {{
   let (world, cam) = @lib.{scene_func}()
-  let w = {width}
-  let h = {height}
   let pixels = @lib.render_scene_full(
-    width=w, height=h,
+    width={width}, height={height},
     samples_per_pixel={samples}, max_depth={max_depth},
     world=world, cam=cam,
+    fog_density={fog_density},
   )
-  @lib.write_ppm_tonemapped(width=w, height=h, pixels=pixels)
+  @lib.write_ppm_tonemapped(width={width}, height={height}, pixels=pixels)
 }}
 """
-        main_path = os.path.join(tmp_dir, "main.mbt")
-        with open(main_path, "w") as f:
-            f.write(src)
+        with _render_lock:
+            try:
+                if os.path.exists(MAIN_PATH):
+                    shutil.copy2(MAIN_PATH, MAIN_BAK)
+                with open(MAIN_PATH, "w") as f:
+                    f.write(gen)
 
-        # Create moon.pkg
-        pkg_content = 'import { "Kai-Junhan/moon-ray" @lib }\n\noptions( "is-main": true )\n'
-        pkg_path = os.path.join(tmp_dir, "moon.pkg")
-        with open(pkg_path, "w") as f:
-            f.write(pkg_content)
+                result = subprocess.run(
+                    ["moon", "run", "cmd/main"],
+                    capture_output=True, text=True, timeout=300,
+                    cwd=MOON_RAY_DIR,
+                )
+                ppm_lines = [
+                    l for l in result.stdout.split("\n")
+                    if l and "moon:" not in l and "Running" not in l and "Finished" not in l
+                ]
+                ppm_data = "\n".join(ppm_lines)
 
-        # Run via moon run in the temp dir, using moon-ray as a dependency
-        try:
-            # Use -C to set the directory, passing stdin for path resolution
-            env = os.environ.copy()
-            env["MOON_PATH"] = MOON_RAY_DIR
-
-            # Simple approach: run the existing cmd/main but pass params via env
-            # Since MoonBit doesn't support cmdline args in main(), we use the generated file
-            # as a standalone project.
-            # For now, we use the temp dir and moon run with relative path resolution.
-
-            # Copy a moon.mod.json or use mooncakes dependency mechanism
-            # Simplest: compile the temp file using moonc directly
-
-            # Write a temp moon.mod
-            mod_content = 'name = "temp_render"\nversion = "0.1.0"\n'
-            mod_path = os.path.join(tmp_dir, "moon.mod")
-            with open(mod_path, "w") as f:
-                f.write(mod_content)
-
-            result = subprocess.run(
-                ["moon", "run", tmp_dir],
-                capture_output=True, text=True, timeout=300,
-                cwd=MOON_RAY_DIR,
-            )
-
-            # Filter moon build output lines
-            ppm_lines = [
-                l for l in result.stdout.split("\n")
-                if l and not l.startswith("moon:") and not l.startswith("Running") and not l.startswith("Finished")
-            ]
-            ppm_data = "\n".join(ppm_lines)
-
-            if "P3" in ppm_data[:50]:
-                self.send_response(200)
-                self.send_header("Content-Type", "text/plain")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(ppm_data.encode())
-            else:
-                raise RuntimeError(f"No PPM data: {ppm_data[:200]}")
-
-        except subprocess.TimeoutExpired:
-            self.send_error(504, "Render timeout")
-        except Exception as e:
-            self.send_error(500, f"Render error: {str(e)}")
-        finally:
-            shutil.rmtree(tmp_dir, ignore_errors=True)
+                if "P3" in ppm_data[:50]:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/plain")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(ppm_data.encode())
+                else:
+                    raise RuntimeError(f"No PPM output. Got: {ppm_data[:200]}")
+            except subprocess.TimeoutExpired:
+                self.send_error(504, "Render timed out")
+            except Exception as e:
+                self.send_error(500, f"Render error: {str(e)}")
+            finally:
+                if os.path.exists(MAIN_BAK):
+                    shutil.move(MAIN_BAK, MAIN_PATH)
 
     def serve_file(self, filename, content_type):
         filepath = os.path.join(PROJECT_DIR, filename)
@@ -156,7 +125,7 @@ fn main {{
                 self.end_headers()
                 self.wfile.write(f.read())
         except FileNotFoundError:
-            self.send_error(404, f"File not found: {filename}")
+            self.send_error(404)
 
     def serve_json(self, data):
         self.send_response(200)
@@ -165,20 +134,22 @@ fn main {{
         self.end_headers()
         self.wfile.write(json.dumps(data).encode())
 
-    def log_message(self, format, *args):
-        print(f"[GUI] {format % args}", flush=True)
+    def log_message(self, fmt, *args):
+        print(f"[GUI] {fmt % args}", flush=True)
 
 
 def main():
     server = http.server.HTTPServer(("", PORT), RenderHandler)
     print("=" * 60)
     print("  moon-ray GUI Server")
-    print(f"  Open: http://localhost:{PORT}")
+    print(f"  http://localhost:{PORT}")
     print("=" * 60)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nServer stopped.")
+        print("\nStopped.")
+        if os.path.exists(MAIN_BAK):
+            shutil.move(MAIN_BAK, MAIN_PATH)
         server.server_close()
 
 

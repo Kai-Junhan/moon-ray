@@ -48,6 +48,7 @@ pub fn render_with_config(config : RenderConfig) -> (Array[Vec3], Int, Int) {
     _ => three_spheres_scene()
   }
 
+  let fog = if config.scene == "foggy_scene" { 0.08 } else { 0.0 }
   let w = config.width
   let h = config.height
   let pixels = render_scene_full(
@@ -55,6 +56,7 @@ pub fn render_with_config(config : RenderConfig) -> (Array[Vec3], Int, Int) {
     samples_per_pixel=config.samples,
     max_depth=config.max_depth,
     world=world, cam=cam,
+    fog_density=fog,
   )
   (pixels, w, h)
 }
