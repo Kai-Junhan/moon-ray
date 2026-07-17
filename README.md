@@ -279,15 +279,15 @@ import "Kai-Junhan/moon-ray"
 ## References / 参考资料
 
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) — Peter Shirley
-- [_Physically Based Rendering_](https://pbr-book.org/) — Pharr, Jakob, Humphreys
+  - **License**: CC0 1.0 Universal (Public Domain Dedication)
+  - **Scope**: Core ray-sphere intersection, basic Lambertian/Metal/Dielectric material scattering, pinhole camera model, and recursive path tracing structure. All concepts re-implemented in idiomatic MoonBit and significantly extended.
 
-<details><summary>中文</summary>
+- [_Physically Based Rendering_](https://pbr-book.org/) — Matt Pharr, Wenzel Jakob, Greg Humphreys
+  - **License**: MIT License
+  - **Scope**: Conceptual reference for Next Event Estimation (NEE), Multiple Importance Sampling (MIS), BVH spatial partitioning with SAH, and physically-based tone mapping theory.
 
-本项目参考了 Peter Shirley 的《Ray Tracing in One Weekend》系列教程
-以及《Physically Based Rendering》经典教材，在此基础上进行了 MoonBit 语言
-的原生重写和功能扩展。
-
-</details>
+All MoonBit source code is an original implementation. The following features are independent additions beyond any reference work:
+8 geometry types (Plane, Triangle, Box, Cylinder, Disk, Cone, Torus, Mesh), 4 additional material types (DiffuseLight, Isotropic, Textured, Emissive), BVH acceleration structure, procedural texture system (Checker, Noise, Image), volume rendering (exponential/layered fog, Beer-Lambert), post-processing pipeline (bloom, vignette, film grain, denoising), keyframe animation system with easing functions, scene builder API, and interactive web GUI.
 
 ---
 

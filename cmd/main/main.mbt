@@ -27,6 +27,10 @@ fn main {
     _ => @lib.three_spheres_scene()
   }
 
-  let pixels = @lib.render_scene(width=width, height=height, samples_per_pixel=samples, max_depth=max_depth, world=world, cam=cam)
-  @lib.write_ppm_stdout(width=width, height=height, pixels=pixels, samples_per_pixel=samples)
+  let pixels = @lib.render_scene_full(
+    width=width, height=height,
+    samples_per_pixel=samples, max_depth=max_depth,
+    world=world, cam=cam,
+  )
+  @lib.write_ppm_tonemapped(width=width, height=height, pixels=pixels)
 }

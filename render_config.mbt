@@ -50,7 +50,7 @@ pub fn render_with_config(config : RenderConfig) -> (Array[Vec3], Int, Int) {
 
   let w = config.width
   let h = config.height
-  let pixels = render_scene(
+  let pixels = render_scene_full(
     width=w, height=h,
     samples_per_pixel=config.samples,
     max_depth=config.max_depth,
