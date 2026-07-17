@@ -16,9 +16,9 @@ MAIN_BAK = MAIN_PATH + ".bak"
 
 ALL_SCENES = [
     "three_spheres", "cornell_box", "material_showcase", "random_spheres",
-    "geometric", "cornell_box_planes", "texture_demo", "triangle_demo",
-    "final_demo", "full_geometry", "studio_lighting", "depth_of_field",
-    "foggy_scene", "mirror_corridor", "crystal_garden", "sunrise_valley",
+    "geometric", "cornel_box", "texture_demo_scene", "triangle_demo_scene",
+    "final_demo_scene", "full_geometry_demo", "studio_lighting_demo", "depth_of_field_demo",
+    "foggy_scene_demo", "mirror_corridor", "crystal_garden", "sunrise_valley",
     "prism_lab", "city_at_night",
 ]
 
@@ -68,8 +68,12 @@ class RenderHandler(http.server.BaseHTTPRequestHandler):
         self.try_render(scene, width, height, samples, max_depth)
 
     def try_render(self, scene, width, height, samples, max_depth):
-        fog_density = 0.08 if scene == "foggy_scene" else 0.0
-        scene_func = scene + "_scene"
+        fog_density = 0.08 if scene == "foggy_scene_demo" else 0.0
+        # Scene functions use either _scene or _demo suffix
+        if scene.endswith("_scene") or scene.endswith("_demo"):
+            scene_func = scene
+        else:
+            scene_func = scene + "_scene"
         gen = f"""fn main {{
   let (world, cam) = @lib.{scene_func}()
   let pixels = @lib.render_scene_full(
@@ -90,11 +94,12 @@ class RenderHandler(http.server.BaseHTTPRequestHandler):
 
                 result = subprocess.run(
                     ["moon", "run", "cmd/main"],
-                    capture_output=True, text=True, timeout=300,
+                    capture_output=True, timeout=300,
                     cwd=MOON_RAY_DIR,
                 )
+                stdout = result.stdout.decode("utf-8", errors="replace")
                 ppm_lines = [
-                    l for l in result.stdout.split("\n")
+                    l for l in stdout.split("\n")
                     if l and "moon:" not in l and "Running" not in l and "Finished" not in l
                 ]
                 ppm_data = "\n".join(ppm_lines)

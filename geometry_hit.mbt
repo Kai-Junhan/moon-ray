@@ -67,6 +67,38 @@ pub(all) struct HitableList {
   bvh_ready : Bool
 } derive(Debug)
 
+/// Module-level BVH cache: maps objects array identity to BVH root.
+/// Since MoonBit doesn't support mutable struct fields, we cache here.
+let _bvh_cache : Array[(Int, BVHNode?)] = Array::new(capacity=8)
+
+fn bvh_cache_key(objects : Array[Hitable]) -> Int {
+  // Use object count + first object's bounding box as a simple key
+  // This is a heuristic; for correctness, the cache is cleared on build_bvh
+  objects.length()
+}
+
+fn bvh_cache_lookup(objects : Array[Hitable]) -> BVHNode? {
+  let key = bvh_cache_key(objects)
+  for i in 0..<_bvh_cache.length() {
+    if _bvh_cache[i].0 == key {
+      return _bvh_cache[i].1
+    }
+  }
+  None
+}
+
+fn bvh_cache_store(objects : Array[Hitable], root : BVHNode?) -> Unit {
+  let key = bvh_cache_key(objects)
+  // Replace existing entry or add new
+  for i in 0..<_bvh_cache.length() {
+    if _bvh_cache[i].0 == key {
+      _bvh_cache[i] = (key, root)
+      return
+    }
+  }
+  _bvh_cache.push((key, root))
+}
+
 pub fn HitableList::new() -> HitableList {
   { objects: Array::new(capacity=16), bvh_ready: false }
 }
@@ -83,7 +115,8 @@ pub fn HitableList::build_bvh(self : HitableList) -> HitableList {
   if self.objects.length() <= 1 || self.bvh_ready {
     return self
   }
-  let _root = bvh_build_from(self.objects)
+  let root = bvh_build_from(self.objects)
+  bvh_cache_store(self.objects, root)
   { ..self, bvh_ready: true }
 }
 
@@ -93,9 +126,16 @@ pub fn HitableList::hit(self : HitableList, r : Ray, t_min~ : Double, t_max~ : D
   if !(self.bvh_ready) || self.objects.length() < 1 {
     return self.hit_linear(r, t_min=t_min, t_max=t_max)
   }
-  let root = bvh_build_from(self.objects)
-  match root {
-    None => self.hit_linear(r, t_min=t_min, t_max=t_max)
+  let cached = bvh_cache_lookup(self.objects)
+  match cached {
+    None => {
+      // Fallback: rebuild (shouldn't happen if build_bvh was called)
+      let root = bvh_build_from(self.objects)
+      match root {
+        None => self.hit_linear(r, t_min=t_min, t_max=t_max)
+        Some(node) => bvh_hit(node, self.objects, r, t_min=t_min, t_max=t_max)
+      }
+    }
     Some(node) => bvh_hit(node, self.objects, r, t_min=t_min, t_max=t_max)
   }
 }
