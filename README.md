@@ -7,7 +7,7 @@
 [![CI](https://github.com/Kai-Junhan/moon-ray/actions/workflows/ci.yml/badge.svg)](https://github.com/Kai-Junhan/moon-ray/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![MoonBit](https://img.shields.io/badge/Language-MoonBit-6f42c1)](https://www.moonbitlang.cn/)
-[![mooncakes.io](https://img.shields.io/badge/mooncakes.io-v0.2.1-00b894)](https://mooncakes.io)
+[![mooncakes.io](https://img.shields.io/badge/mooncakes.io-v0.4.0-00b894)](https://mooncakes.io)
 
 *2026 MoonBit Open Source Ecosystem Competition*
 
@@ -278,16 +278,41 @@ import "Kai-Junhan/moon-ray"
 
 ## References / 参考资料
 
-- [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) — Peter Shirley
+- [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html) — Peter Shirley (2020)
   - **License**: CC0 1.0 Universal (Public Domain Dedication)
-  - **Scope**: Core ray-sphere intersection, basic Lambertian/Metal/Dielectric material scattering, pinhole camera model, and recursive path tracing structure. All concepts re-implemented in idiomatic MoonBit and significantly extended.
+  - **Referenced sections**:
+    - Chapter 6: Surface normals and ray-sphere intersection → `geometry_sphere.mbt`
+    - Chapter 8: Diffuse (Lambertian) materials → `material.mbt` (Lambertian variant)
+    - Chapter 9: Metal reflection with fuzz → `material.mbt` (Metal variant)
+    - Chapter 10: Dielectrics, Snell's law, Schlick approximation → `material.mbt` (Dielectric variant)
+    - Chapter 11: Defocus blur (thin-lens camera model) → `camera.mbt`
+    - Chapter 12: Random scene construction pattern → `demo_scenes.mbt`
+  - **Adaptation**: All algorithms re-implemented from first principles in idiomatic MoonBit. No code was translated line-by-line; only the mathematical formulations were referenced.
 
-- [_Physically Based Rendering_](https://pbr-book.org/) — Matt Pharr, Wenzel Jakob, Greg Humphreys
-  - **License**: MIT License
-  - **Scope**: Conceptual reference for Next Event Estimation (NEE), Multiple Importance Sampling (MIS), BVH spatial partitioning with SAH, and physically-based tone mapping theory.
+- [_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html) — Peter Shirley (2020)
+  - **License**: CC0 1.0 Universal (Public Domain Dedication)
+  - **Referenced sections**:
+    - Chapter 3: BVH (Bounding Volume Hierarchy) construction via axis sorting → `bvh.mbt`
+    - Chapter 5: Perlin noise procedural texture → `math_perlin.mbt`
+    - Chapter 8: Constant-density volumes (participating media) → `volume_render.mbt`
+  - **Adaptation**: BVH uses centroid-midpoint partitioning instead of SAH; volume rendering extends to layered fog and Beer-Lambert absorption beyond the reference.
 
-All MoonBit source code is an original implementation. The following features are independent additions beyond any reference work:
-8 geometry types (Plane, Triangle, Box, Cylinder, Disk, Cone, Torus, Mesh), 4 additional material types (DiffuseLight, Isotropic, Textured, Emissive), BVH acceleration structure, procedural texture system (Checker, Noise, Image), volume rendering (exponential/layered fog, Beer-Lambert), post-processing pipeline (bloom, vignette, film grain, denoising), keyframe animation system with easing functions, scene builder API, and interactive web GUI.
+- [_Physically Based Rendering: From Theory to Implementation_](https://pbr-book.org/) — Matt Pharr, Wenzel Jakob, Greg Humphreys (3rd/4th edition)
+  - **License**: MIT License (online edition, code and samples)
+  - **Referenced concepts** (no code copied):
+    - Section 13.10: Multiple Importance Sampling (MIS) with balance/power heuristics → `render_sampling.mbt`
+    - Section 14.3: Next Event Estimation (direct light sampling) → `renderer.mbt`
+    - Section 12.2: Russian roulette path termination → `renderer.mbt`
+    - Section 4.3: AABB ray intersection for BVH traversal → `math_aabb.mbt`
+  - **Adaptation**: Mathematical formulations only; no code verbatim. MIS weights integrated into the NEE + BSDF sampling loop.
+
+- **ACES Filmic Tone Mapping** — Academy Color Encoding System
+  - **License**: Public specification (Academy of Motion Picture Arts and Sciences)
+  - **Source**: Stephen Hill's ACES approximation (fitted curve)
+  - **Used in**: `renderer.mbt` (tone mapping pass), `tone_mapping.mbt`
+
+All MoonBit source code is an original implementation. The following features are independent additions with no external reference:
+8 geometry types (Plane, Triangle, Box, Cylinder, Disk, Cone, Torus, Mesh), DiffuseLight/Isotropic/Textured material types, procedural texture system (Checker, Noise, Image), post-processing pipeline (bloom, vignette, color grading, film grain, denoising), keyframe animation system with easing functions, scene builder API, interactive web GUI, BMP output, and all demo scenes.
 
 ---
 

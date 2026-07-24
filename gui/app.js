@@ -13,6 +13,7 @@ class MoonRayApp {
     this.stopBtn = document.getElementById('stop-btn');
     this.samplesInput = document.getElementById('samples-input');
     this.depthInput = document.getElementById('depth-input');
+    this.fogInput = document.getElementById('fog-input');
     this.abortController = null;
 
     this.bindEvents();
@@ -28,6 +29,9 @@ class MoonRayApp {
     });
     this.depthInput.addEventListener('input', () => {
       document.getElementById('depth-val').textContent = this.depthInput.value;
+    });
+    this.fogInput.addEventListener('input', () => {
+      document.getElementById('fog-val').textContent = parseFloat(this.fogInput.value).toFixed(2);
     });
 
     document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -64,6 +68,7 @@ class MoonRayApp {
     const height = parseInt(document.getElementById('height-input').value);
     const samples = parseInt(this.samplesInput.value);
     const maxDepth = parseInt(this.depthInput.value);
+    const fogDensity = parseFloat(this.fogInput.value);
 
     this.setStatus('Rendering...', 'status-rendering');
     this.renderBtn.disabled = true;
@@ -77,7 +82,7 @@ class MoonRayApp {
       const response = await fetch('/api/render', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scene, width, height, samples, maxDepth: maxDepth }),
+        body: JSON.stringify({ scene, width, height, samples, maxDepth, fog_density: fogDensity }),
         signal: this.abortController.signal,
       });
 

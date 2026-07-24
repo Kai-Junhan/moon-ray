@@ -13,3 +13,5 @@ test_output_*.*
 gui/__pycache__/
 *.pyc
 __pycache__/
+verify_project.py
+debug*.py

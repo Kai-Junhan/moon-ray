@@ -14,13 +14,28 @@ MOON_RAY_DIR = os.path.dirname(PROJECT_DIR)
 MAIN_PATH = os.path.join(MOON_RAY_DIR, "cmd", "main", "main.mbt")
 MAIN_BAK = MAIN_PATH + ".bak"
 
-ALL_SCENES = [
-    "three_spheres", "cornell_box", "material_showcase", "random_spheres",
-    "geometric", "cornel_box", "texture_demo_scene", "triangle_demo_scene",
-    "final_demo_scene", "full_geometry_demo", "studio_lighting_demo", "depth_of_field_demo",
-    "foggy_scene_demo", "mirror_corridor", "crystal_garden", "sunrise_valley",
-    "prism_lab", "city_at_night",
-]
+SCENE_FUNC_MAP = {
+    "three_spheres": "three_spheres_scene",
+    "cornell_box": "cornell_box_scene",
+    "material_showcase": "material_showcase_scene",
+    "random_spheres": "random_spheres_scene",
+    "geometric": "geometric_scene",
+    "cornell_box_planes": "cornel_box_scene",
+    "texture_demo": "texture_demo_scene",
+    "triangle_demo": "triangle_demo_scene",
+    "final_demo": "final_demo_scene",
+    "full_geometry": "full_geometry_demo",
+    "studio_lighting": "studio_lighting_demo",
+    "depth_of_field": "depth_of_field_demo",
+    "foggy_scene": "foggy_scene_demo",
+    "mirror_corridor": "mirror_corridor_scene",
+    "crystal_garden": "crystal_garden_scene",
+    "sunrise_valley": "sunrise_valley_scene",
+    "prism_lab": "prism_lab_scene",
+    "city_at_night": "city_at_night_scene",
+}
+
+ALL_SCENES = list(SCENE_FUNC_MAP.keys())
 
 _render_lock = threading.Lock()
 
@@ -59,21 +74,20 @@ class RenderHandler(http.server.BaseHTTPRequestHandler):
         width = int(data.get("width", 400))
         height = int(data.get("height", 225))
         samples = int(data.get("samples", 100))
-        max_depth = int(data.get("max_depth", 50))
+        max_depth = int(data.get("maxDepth", data.get("max_depth", 50)))
+        fog_density = float(data.get("fog_density", 0.0))
 
-        if scene not in ALL_SCENES:
+        if scene not in SCENE_FUNC_MAP:
             scene = "three_spheres"
 
-        self.log_message("Render: scene=%s %dx%d %dspp", scene, width, height, samples)
-        self.try_render(scene, width, height, samples, max_depth)
+        if scene == "foggy_scene" and fog_density == 0.0:
+            fog_density = 0.08
 
-    def try_render(self, scene, width, height, samples, max_depth):
-        fog_density = 0.08 if scene == "foggy_scene_demo" else 0.0
-        # Scene functions use either _scene or _demo suffix
-        if scene.endswith("_scene") or scene.endswith("_demo"):
-            scene_func = scene
-        else:
-            scene_func = scene + "_scene"
+        self.log_message("Render: scene=%s %dx%d %dspp depth=%d fog=%.2f", scene, width, height, samples, max_depth, fog_density)
+        self.try_render(scene, width, height, samples, max_depth, fog_density)
+
+    def try_render(self, scene, width, height, samples, max_depth, fog_density):
+        scene_func = SCENE_FUNC_MAP.get(scene, "three_spheres_scene")
         gen = f"""fn main {{
   let (world, cam) = @lib.{scene_func}()
   let pixels = @lib.render_scene_full(
@@ -81,6 +95,7 @@ class RenderHandler(http.server.BaseHTTPRequestHandler):
     samples_per_pixel={samples}, max_depth={max_depth},
     world=world, cam=cam,
     fog_density={fog_density},
+    post_process=@lib.default_post_process_config(),
   )
   @lib.write_ppm_tonemapped(width={width}, height={height}, pixels=pixels)
 }}
