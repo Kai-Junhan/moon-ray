@@ -1,6 +1,32 @@
 ///|
 /// Render configuration and parameter management for GUI integration.
 
+pub(all) struct PostProcessConfig {
+  bloom_enabled : Bool
+  bloom_threshold : Double
+  bloom_intensity : Double
+  color_grading_enabled : Bool
+  contrast : Double
+  saturation : Double
+  brightness : Double
+  temperature : Double
+  vignette_strength : Double
+} derive(Debug)
+
+pub fn default_post_process_config() -> PostProcessConfig {
+  {
+    bloom_enabled: true,
+    bloom_threshold: 0.8,
+    bloom_intensity: 0.3,
+    color_grading_enabled: true,
+    contrast: 1.0,
+    saturation: 1.0,
+    brightness: 1.0,
+    temperature: 0.0,
+    vignette_strength: 0.3,
+  }
+}
+
 pub(all) struct RenderConfig {
   scene : String
   width : Int
@@ -10,6 +36,7 @@ pub(all) struct RenderConfig {
   output_format : String
   aperture : Double
   fov : Double
+  post_process : PostProcessConfig
 } derive(Debug)
 
 pub fn default_render_config() -> RenderConfig {
@@ -22,6 +49,7 @@ pub fn default_render_config() -> RenderConfig {
     output_format: "ppm",
     aperture: 0.0,
     fov: 90.0,
+    post_process: default_post_process_config(),
   }
 }
 
@@ -57,6 +85,7 @@ pub fn render_with_config(config : RenderConfig) -> (Array[Vec3], Int, Int) {
     max_depth=config.max_depth,
     world=world, cam=cam,
     fog_density=fog,
+    post_process=config.post_process,
   )
   (pixels, w, h)
 }

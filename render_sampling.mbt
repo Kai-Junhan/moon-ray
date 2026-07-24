@@ -2,8 +2,15 @@
 /// Advanced sampling strategies for Monte Carlo integration.
 /// Includes stratified sampling, MIS heuristics, and pixel filters.
 
-pub fn sobol_sample(_index : Int, _dimension : Int) -> Double {
-  0.5
+pub fn sobol_sample(index : Int, dimension : Int) -> Double {
+  let seed = (index * 1664525 + dimension * 9013 + 1).to_uint64()
+  let mut h = seed
+  h = h ^ (h >> 33)
+  h = h * 0xff51afd7ed558ccdUL
+  h = h ^ (h >> 33)
+  h = h * 0xc4ceb9fe1a85ec53UL
+  h = h ^ (h >> 33)
+  (h >> 33).to_double() / 2147483648.0
 }
 
 pub fn stratified_2d(s : Int, t : Int, nx : Int, ny : Int) -> (Double, Double) {

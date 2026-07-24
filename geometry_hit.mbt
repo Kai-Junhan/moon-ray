@@ -141,7 +141,7 @@ pub fn HitableList::hit(self : HitableList, r : Ray, t_min~ : Double, t_max~ : D
 }
 
 /// Linear scan hit (fallback).
-fn HitableList::hit_linear(self : HitableList, r : Ray, t_min~ : Double, t_max~ : Double) -> HitRecord? {
+pub fn HitableList::hit_linear(self : HitableList, r : Ray, t_min~ : Double, t_max~ : Double) -> HitRecord? {
   let mut closest = t_max
   let mut result : HitRecord? = None
   for i in 0..<self.objects.length() {
