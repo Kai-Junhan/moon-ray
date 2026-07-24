@@ -191,6 +191,13 @@ pub fn foggy_scene_demo() -> (HitableList, Camera) {
     material=Material::DiffuseLight(Texture::Solid({ x: 6.0, y: 5.0, z: 4.0 })),
   )))
 
+  // Volumetric fog box using Isotropic scattering material
+  world = world.add(Hitable::BoxShape(BoxShape::new(
+    center={ x: 0.0, y: 0.5, z: -1.5 },
+    size={ x: 4.0, y: 2.0, z: 4.0 },
+    material=Material::Isotropic({ x: 0.8, y: 0.85, z: 0.9 }),
+  )))
+
   let cam = Camera::new(
     lookfrom={ x: 0.0, y: 1.0, z: 3.0 },
     lookat={ x: 0.0, y: 0.0, z: -2.0 },

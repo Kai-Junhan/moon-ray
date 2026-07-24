@@ -20,7 +20,7 @@ test "box_hit_exists" {
   let bx = BoxShape::new(center=Vec3::new(x=0.0, y=0.0, z=-5.0), size=Vec3::new(x=1.0, y=1.0, z=1.0), material=Material::Lambertian(Vec3::new(x=0.5, y=0.5, z=0.5)))
   let r = Ray::new(orig=Vec3::new(x=0.0, y=0.0, z=0.0), dir=Vec3::new(x=0.0, y=0.0, z=-1.0))
   let hit = Hitable::BoxShape(bx).hit(r, t_min=0.0, t_max=10.0)
-  match hit { None => (); Some(_) => () }
+  match hit { None => assert_true(false); Some(rec) => assert_true(rec.t > 4.0 && rec.t < 5.5) }
 }
 test "cylinder_hit" {
   let cyl = Cylinder::new(center=Vec3::new(x=0.0, y=0.0, z=-2.0), radius=0.5, height=1.0, material=Material::Lambertian(Vec3::new(x=0.5, y=0.5, z=0.5)))
