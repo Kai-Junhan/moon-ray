@@ -29,9 +29,14 @@ test "texture_checker_produces_both_sides" {
   let even = Texture::Solid(Vec3::new(x=1.0, y=0.0, z=0.0))
   let odd = Texture::Solid(Vec3::new(x=0.0, y=0.0, z=1.0))
   let tex = Texture::Checker(even, odd, 2.0)
-  let c1 = tex.value(0.0, 0.0, Vec3::new(x=0.5, y=0.5, z=0.5))
-  let c2 = tex.value(0.0, 0.0, Vec3::new(x=0.0, y=0.0, z=0.0))
-  assert_true(c1.x == 1.0 || c1.z == 1.0 || c2.x == 1.0 || c2.z == 1.0)
+  // sin(2*1)*sin(2*1)*sin(2*1) = sin(2)^3 > 0 → even (red)
+  let c1 = tex.value(0.0, 0.0, Vec3::new(x=1.0, y=1.0, z=1.0))
+  // sin(2*2)*sin(2*1)*sin(2*1) = sin(4)*sin(2)^2 < 0 → odd (blue)
+  let c2 = tex.value(0.0, 0.0, Vec3::new(x=2.0, y=1.0, z=1.0))
+  let has_even = (c1.x == 1.0 && c1.z == 0.0) || (c2.x == 1.0 && c2.z == 0.0)
+  let has_odd = (c1.z == 1.0 && c1.x == 0.0) || (c2.z == 1.0 && c2.x == 0.0)
+  assert_true(has_even)
+  assert_true(has_odd)
 }
 test "tone_mapping_reinhard_dims" {
   let bright = Vec3::new(x=10.0, y=10.0, z=10.0)
@@ -97,9 +102,12 @@ test "easing_cubic_endpoints" {
   assert_eq(ease_in_out_cubic(0.0), 0.0)
 }
 test "motion_blur_returns_duration" {
-  let (t, dur) = motion_blur_sample(0.0, 1.0)
-  assert_true(t >= 0.0 && t < 1.0)
-  assert_eq(dur, 1.0)
+  let (t1, dur1) = motion_blur_sample(0.0, 1.0)
+  let (t2, dur2) = motion_blur_sample(2.0, 5.0)
+  assert_true(t1 >= 0.0 && t1 < 1.0)
+  assert_eq(dur1, 1.0)
+  assert_true(t2 >= 2.0 && t2 < 5.0)
+  assert_eq(dur2, 3.0)
 }
 test "catmull_rom_interpolates" {
   let v0 = Vec3::new(x=0.0, y=0.0, z=0.0)
@@ -133,13 +141,25 @@ test "bmp_header_magic_bytes" {
   assert_eq(bytes[1].to_int(), 0x4D)
 }
 test "sobol_in_range" {
-  let s = sobol_sample(123, 3)
-  assert_true(s >= 0.0 && s < 1.0)
+  // Verify sobol produces values in [0, 1) that vary across indices
+  let s1 = sobol_sample(1, 0)
+  let s2 = sobol_sample(2, 0)
+  let s3 = sobol_sample(123, 3)
+  assert_true(s1 >= 0.0 && s1 < 1.0)
+  assert_true(s2 >= 0.0 && s2 < 1.0)
+  assert_true(s3 >= 0.0 && s3 < 1.0)
+  // Different indices must produce different samples
+  assert_true((s1 - s2).abs() > 0.001)
 }
 test "environment_sky_color" {
   let env = Environment::default_sky()
   let up = env.sample(Vec3::new(x=0.0, y=1.0, z=0.0))
-  assert_true(up.z > 0.0 || up.y > 0.0)
+  let down = env.sample(Vec3::new(x=0.0, y=-1.0, z=0.0))
+  // Zenith (up): interpolates to (0.5, 0.7, 1.0) — more blue, less red
+  // Horizon (down): interpolates to (1.0, 1.0, 1.0) — white
+  assert_true(up.x < down.x)
+  assert_true((up.x - 0.5).abs() < 0.01)
+  assert_true((down.x - 1.0).abs() < 0.01)
 }
 test "black_body_cool_blue" {
   let warm = black_body_radiation(3000.0)

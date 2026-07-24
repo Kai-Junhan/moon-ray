@@ -41,11 +41,11 @@ pub fn three_spheres_scene() -> (HitableList, Camera) {
 pub fn cornell_box_scene() -> (HitableList, Camera) {
   let mut world = HitableList::new()
 
-  // Light source (ceiling)
+  // Light source (ceiling) — positioned below ceiling inner surface (y=0.5)
   world = world.add(Hitable::Sphere(Sphere::new(
-    center={ x: 0.0, y: 2.0, z: 0.0 },
-    radius=0.5,
-    material=Material::Emissive({ x: 4.0, y: 4.0, z: 4.0 }),
+    center={ x: 0.0, y: 0.4, z: 0.0 },
+    radius=0.1,
+    material=Material::Emissive({ x: 8.0, y: 8.0, z: 8.0 }),
   )))
 
   // Floor - white diffuse
